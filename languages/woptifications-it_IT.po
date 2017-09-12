@@ -1,0 +1,270 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: POEditor.com\n"
+"Project-Id-Version: woptifications\n"
+"Language: it\n"
+
+#: options-init.php:149
+msgid "Hooks settings"
+msgstr "Impostazioni dei ganci"
+
+#: options-init.php:151
+msgid "Select which alerts to display"
+msgstr "Seleziona quali avvisi visualizzare"
+
+#: options-init.php:157
+msgid "Select alert hooks"
+msgstr "Selezionare i ganci di avviso"
+
+#: options-init.php:159
+msgid "post publish"
+msgstr "pubblicazione"
+
+#: options-init.php:160
+msgid "new comment"
+msgstr "nuovo commento"
+
+#: options-init.php:166
+msgid "Select publish post types"
+msgstr "Seleziona i tipi di articoli"
+
+#: options-init.php:172
+msgid "Select new comment post types"
+msgstr "Seleziona i tipi di post per i nuovi commenti"
+
+#: options-init.php:179
+msgid "Content settings"
+msgstr "Impostazioni del contenuto"
+
+#: options-init.php:181
+msgid "Notification output contents"
+msgstr "Contenuto delle notifiche"
+
+#: options-init.php:187
+msgid "Post publish content"
+msgstr "Contenuto delle pubblicazioni"
+
+#: options-init.php:195 options-init.php:245 options-init.php:297
+msgid "Select alert type"
+msgstr "Seleziona tipo di avviso"
+
+#: options-init.php:197 options-init.php:247 options-init.php:299
+#: options-init.php:389
+msgid "info"
+msgstr "Informazioni"
+
+#: options-init.php:198 options-init.php:248 options-init.php:300
+msgid "warning"
+msgstr "avvertimento"
+
+#: options-init.php:199 options-init.php:249 options-init.php:301
+msgid "success"
+msgstr "successo"
+
+#: options-init.php:200 options-init.php:250 options-init.php:302
+msgid "error"
+msgstr "errore"
+
+#: options-init.php:207 options-init.php:257 options-init.php:309
+msgid "Notification title"
+msgstr "Titolo della notifica"
+
+#: options-init.php:208 options-init.php:221
+msgid "You can use the following variables: <br />\n"
+"                    %%title%% <br />\n"
+"                    %%url%% <br />\n"
+"                    %%author%% <br />\n"
+"                    %%type%% <br />\n"
+"                    %%thumbnail%% <br />\n"
+"                    %%categories%%"
+msgstr "È possibile utilizzare le seguenti variabili: <br />\n"
+"                    %% titolo %% <br />\n"
+"                    %% url %% <br />\n"
+"                    %% autore %% <br />\n"
+"                    %% tipo %% <br />\n"
+"                    %% thumbnail %% <br />\n"
+"                    %%Categorie%%"
+
+#: options-init.php:220 options-init.php:271 options-init.php:323
+msgid "Notification content"
+msgstr "Contenuto della notifica"
+
+#: options-init.php:237
+msgid "New comment content"
+msgstr "Contenuto nuovi commenti"
+
+#: options-init.php:258 options-init.php:272
+msgid "You can use the following variables: <br />\n"
+"                    %%post_title%% <br />\n"
+"                    %%comment_url%% <br />\n"
+"                    %%author%% <br />\n"
+"                    %%author_avatar%% <br />\n"
+"                    %%post_type%% <br />\n"
+"                    %%post_thumbnail%% <br />\n"
+"                    %%post_url%%"
+msgstr "È possibile utilizzare le seguenti variabili: <br />\n"
+"                    %% post_title %% <br />\n"
+"                    %% comment_url %% <br />\n"
+"                    %% autore %% <br />\n"
+"                    %% author_avatar %% <br />\n"
+"                    %% post_type %% <br />\n"
+"                    %% post_thumbnail %% <br />\n"
+"                    %% %% POST_URL"
+
+#: options-init.php:289
+msgid "Product publish content"
+msgstr "Contenuto nuovo prodotto"
+
+#: options-init.php:310 options-init.php:324
+msgid "You can use the following variables: <br />\n"
+"                    %%title%% <br />\n"
+"                    %%url%% <br />\n"
+"                    %%author%% <br />\n"
+"                    %%type%% <br />\n"
+"                    %%thumbnail%% <br />\n"
+"                    %%categories%% <br />\n"
+"                    %%price%%"
+msgstr "È possibile utilizzare le seguenti variabili: <br />\n"
+"                    %% titolo %% <br />\n"
+"                    %% url %% <br />\n"
+"                    %% autore %% <br />\n"
+"                    %% tipo %% <br />\n"
+"                    %% thumbnail %% <br />\n"
+"                    %% categorie %% <br />\n"
+"                    %%prezzo%%"
+
+#: options-init.php:342
+msgid "Notification settings"
+msgstr "Impostazioni di notifica"
+
+#: options-init.php:344
+msgid "Configure the notifications"
+msgstr "Configurare le notifiche"
+
+#: options-init.php:350
+msgid "Notification options"
+msgstr "Opzioni di notifica"
+
+#: options-init.php:352
+msgid "close button"
+msgstr "pulsante chiudi"
+
+#: options-init.php:353
+msgid "progress bar"
+msgstr "barra di avanzamento"
+
+#: options-init.php:354
+msgid "prevent duplicates"
+msgstr "evitare duplicati"
+
+#: options-init.php:355
+msgid "newest ontop"
+msgstr "più recente in alto"
+
+#: options-init.php:361
+msgid "Notification position"
+msgstr "Posizione di notifica"
+
+#: options-init.php:363
+msgid "top right"
+msgstr "in alto a destra"
+
+#: options-init.php:364
+msgid "bottom right"
+msgstr "in basso a destra"
+
+#: options-init.php:365
+msgid "bottom left"
+msgstr "in basso a sinistra"
+
+#: options-init.php:366
+msgid "top left"
+msgstr "a sinistra in alto"
+
+#: options-init.php:367
+msgid "top full width"
+msgstr "in alto tutta larghezza"
+
+#: options-init.php:368
+msgid "bottom full width"
+msgstr "in basso tutta larghezza"
+
+#: options-init.php:369
+msgid "top center"
+msgstr "in alto al centro"
+
+#: options-init.php:370
+msgid "bottom center"
+msgstr "in basso al centro"
+
+#: options-init.php:377
+msgid "Entrance easing"
+msgstr "Andamento di entrata"
+
+#: options-init.php:379
+msgid "linear"
+msgstr "lineare"
+
+#: options-init.php:380 options-init.php:390
+msgid "swing"
+msgstr "swing"
+
+#: options-init.php:387 options-init.php:397 options-init.php:407
+msgid "Exit easing"
+msgstr "Andamento uscita"
+
+#: options-init.php:399
+msgid "fade in"
+msgstr "Apparire"
+
+#: options-init.php:400
+msgid "slide down"
+msgstr "scorrere verso il basso"
+
+#: options-init.php:409
+msgid "fade out"
+msgstr "dissolvenza"
+
+#: options-init.php:410
+msgid "slide up"
+msgstr "scorrere verso l'alto"
+
+#: options-init.php:417
+msgid "Entrance animation duration"
+msgstr "Durata dell'animazione di entrata"
+
+#: options-init.php:427
+msgid "Exit animation duration"
+msgstr "Durata dell'animazione in uscita"
+
+#: options-init.php:437
+msgid "Display duration"
+msgstr "Durata della visualizzazione"
+
+#: options-init.php:438
+msgid "Set to 0 to keep notification visible until user dismissal"
+msgstr "Impostare su 0 per mantenere la notifica visibile fino al licenziamento dell'utente"
+
+#: options-init.php:448
+msgid "Entended display duration after hover"
+msgstr "Durata estensione visualizzazione dopo il passaggio del mouse"
+
+#: options-init.php:449
+msgid "Set to 0 to keep notification visible until user dismissal after hover"
+msgstr "Impostare su 0 per mantenere la notifica visibile fino al licenziamento dell'utente dopo averlo spento"
+
+#: woptifications.php:18
+msgid "Error: plugin \"Woptifications\" requires a newer version of PHP to be running."
+msgstr "Errore: il plugin \"Woptifications\" richiede che una versione più recente di PHP sia in esecuzione."
+
+#: woptifications.php:19
+msgid "Minimal version of PHP required: "
+msgstr "La versione minima di PHP richiede:"
+
+#: woptifications.php:20
+msgid "Your server's PHP version: "
+msgstr "Versione PHP del server:"
+
