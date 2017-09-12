@@ -1,10 +1,9 @@
 
-toastr.options = toastr_opts;
+toastr.options = woptifications_toastr_opts;
 
 jQuery(document).ready(function($) {
   $(document).on('heartbeat-send', function(e, data) {
       data['woptifications_status'] = 'ready';    //need some data to kick off AJAX call
-      data['curID'] = window.curID; 
   });
   
   $(document).on('heartbeat-tick', function(e, data) {

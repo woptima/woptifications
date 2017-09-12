@@ -37,10 +37,10 @@ function woptifications_load_scripts() {
     wp_enqueue_script('heartbeat');
     wp_enqueue_script( 'woptifications-toastr', plugins_url( 'vendor/toastr/toastr.min.js', __FILE__ ), array('jquery'), '', true);
     wp_enqueue_style( 'woptifications-toastr', plugins_url( 'vendor/toastr/toastr.min.css', __FILE__ ), '', true);
-    wp_enqueue_script('woptifications', plugins_url( 'js/main.js', __FILE__ ), array('jquery', 'wop-toastr'), '', true);
+    wp_enqueue_script('woptifications', plugins_url( 'js/main.js', __FILE__ ), array('jquery', 'woptifications-toastr'), '', true);
 
-    wp_localize_script( 'woptifications', 'toastr_opts', toastr_settings() );
-    wp_add_inline_style( 'wop-toastr', toastr_css() );
+    wp_localize_script( 'woptifications', 'woptifications_toastr_opts', woptifications_toastr_settings() );
+    wp_add_inline_style( 'wop-toastr', woptifications_toastr_css() );
 }
 add_action('wp_enqueue_scripts', 'woptifications_load_scripts');
 

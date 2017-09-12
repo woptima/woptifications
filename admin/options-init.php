@@ -156,8 +156,8 @@
                 'type'     => 'checkbox',
                 'title'    => __( 'Select alert hooks', 'woptifications' ),
                 'options'  => array(
-                        'post' => 'post publish',
-                        'comment' => 'new comment',
+                        'post' => __( 'post publish', 'woptifications'),
+                        'comment' => __( 'new comment', 'woptifications'),
                     ),
             ),
             array(
@@ -194,10 +194,10 @@
                 'type'     => 'select',
                 'title'    => __('Select alert type', 'woptifications'), 
                 'options'  => array(
-                    'info' => 'info',
-                    'warning' => 'warning',
-                    'success' => 'success',
-                    'error' => 'error'
+                    'info' => __( 'info', 'woptifications'),
+                    'warning' => __( 'warning', 'woptifications'),
+                    'success' => __( 'success', 'woptifications'),
+                    'error' => __( 'error', 'woptifications'),
                 ),
                 'default'  => 'info',
             ),
@@ -244,10 +244,10 @@
                 'type'     => 'select',
                 'title'    => __('Select alert type', 'woptifications'), 
                 'options'  => array(
-                    'info' => 'info',
-                    'warning' => 'warning',
-                    'success' => 'success',
-                    'error' => 'error'
+                    'info' => __( 'info', 'woptifications'),
+                    'warning' => __( 'warning', 'woptifications'),
+                    'success' => __( 'success', 'woptifications'),
+                    'error' => __( 'error', 'woptifications')
                 ),
                 'default'  => 'info',
             ),
@@ -296,10 +296,10 @@
                 'type'     => 'select',
                 'title'    => __('Select alert type', 'woptifications'), 
                 'options'  => array(
-                    'info' => 'info',
-                    'warning' => 'warning',
-                    'success' => 'success',
-                    'error' => 'error'
+                    'info' => __( 'info', 'woptifications'),
+                    'warning' => __( 'warning', 'woptifications'),
+                    'success' => __( 'success', 'woptifications'),
+                    'error' => __( 'error', 'woptifications')
                 ),
                 'default'  => 'info',
             ),
@@ -349,10 +349,10 @@
                 'type'     => 'checkbox',
                 'title'    => __( 'Notification options', 'woptifications' ),
                 'options'  => array(
-                        'closeButton' => 'close button',
-                        'progressBar' => 'progress bar',
-                        'preventDuplicates' => 'prevent duplicates',
-                        'newestOnTop' => 'newest ontop',
+                        'closeButton' => __( 'close button', 'woptifications'),
+                        'progressBar' => __( 'progress bar', 'woptifications'),
+                        'preventDuplicates' => __( 'prevent duplicates', 'woptifications'),
+                        'newestOnTop' => __( 'newest ontop', 'woptifications'),
                     ),
             ),
             array(
@@ -360,14 +360,14 @@
                 'type'     => 'radio',
                 'title'    => __( 'Notification position', 'woptifications' ),
                 'options'  => array(
-                        'toast-top-right' => 'top right',
-                        'toast-bottom-right' => 'bottom right',
-                        'toast-bottom-left' => 'bottom left',
-                        'toast-top-left' => 'top left',
-                        'toast-top-full-width' => 'top full width',
-                        'toast-bottom-full-width' => 'bottom full width',
-                        'toast-top-center' => 'top center',
-                        'toast-bottom-center' => 'bottom center',
+                        'toast-top-right' => __( 'top right', 'woptifications'),
+                        'toast-bottom-right' => __( 'bottom right', 'woptifications' ),
+                        'toast-bottom-left' => __( 'bottom left', 'woptifications'),
+                        'toast-top-left' => __( 'top left', 'woptifications'),
+                        'toast-top-full-width' => __( 'top full width', 'woptifications'),
+                        'toast-bottom-full-width' => __( 'bottom full width', 'woptifications'),
+                        'toast-top-center' => __( 'top center', 'woptifications'),
+                        'toast-bottom-center' => __( 'bottom center', 'woptifications'),
                     ),
                 'default'  => 'bottom_right',
             ),
@@ -376,8 +376,8 @@
                 'type'     => 'select',
                 'title'    => __('Entrance easing', 'woptifications'), 
                 'options'  => array(
-                        'linear' => 'info',
-                        'swing' => 'warning',
+                        'linear' => __( 'linear', 'woptifications'),
+                        'swing' => __( 'swing', 'woptifications'),
                     ),
                 'default'  => 'swing',
             ),
@@ -386,8 +386,8 @@
                 'type'     => 'select',
                 'title'    => __('Exit easing', 'woptifications'), 
                 'options'  => array(
-                        'linear' => 'info',
-                        'swing' => 'swing',
+                        'linear' => __( 'info', 'woptifications'),
+                        'swing' => __( 'swing', 'woptifications'),
                     ),
                 'default'  => 'swing',
             ),
@@ -396,8 +396,8 @@
                 'type'     => 'select',
                 'title'    => __('Exit easing', 'woptifications'), 
                 'options'  => array(
-                        'fadeIn' => 'fade in',
-                        'slideDown' => 'slide down',
+                        'fadeIn' => __( 'fade in', 'woptifications'),
+                        'slideDown' => __( 'slide down', 'woptifications'),
                     ),
                 'default'  => 'slideDown',
             ),
@@ -406,8 +406,8 @@
                 'type'     => 'select',
                 'title'    => __('Exit easing', 'woptifications'), 
                 'options'  => array(
-                        'fadeOut' => 'fade out',
-                        'slideUp' => 'slide up',
+                        'fadeOut' => __( 'fade out', 'woptifications'),
+                        'slideUp' => __( 'slide up', 'woptifications'),
                     ),
                 'default'  => 'slideUp',
             ),
