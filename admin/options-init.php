@@ -11,7 +11,7 @@
     }
 
     // This is your option name where all the Redux data is stored.
-    $opt_name = "wop_options";
+    $opt_name = "woptifications_options";
 
     /**
      * ---> SET ARGUMENTS

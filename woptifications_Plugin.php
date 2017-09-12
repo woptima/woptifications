@@ -1,25 +1,25 @@
 <?php
 
-Redux::init( 'wop_options' );
+Redux::init( 'woptifications_options' );
 
 // Toastr settings
-function toastr_settings() {
-    global $wop_options;
+function woptifications_toastr_settings() {
+    global $woptifications_options;
 
     $toastr_opts = array(
             "debug" => false,
-            "positionClass" => $wop_options['positionClass'],
+            "positionClass" => $woptifications_options['positionClass'],
             "onclick" => null,
-            "showDuration" => $wop_options['showDuration'],
-            "hideDuration" => $wop_options['hideDuration'],
-            "timeOut" => $wop_options['timeOut'],
-            "extendedTimeOut" => $wop_options['extendedTimeOut'],
-            "showEasing" => $wop_options['showEasing'],
-            "hideEasing" => $wop_options['hideEasing'],
-            "showMethod" => $wop_options['showMethod'],
-            "hideMethod" => $wop_options['hideMethod']
+            "showDuration" => $woptifications_options['showDuration'],
+            "hideDuration" => $woptifications_options['hideDuration'],
+            "timeOut" => $woptifications_options['timeOut'],
+            "extendedTimeOut" => $woptifications_options['extendedTimeOut'],
+            "showEasing" => $woptifications_options['showEasing'],
+            "hideEasing" => $woptifications_options['hideEasing'],
+            "showMethod" => $woptifications_options['showMethod'],
+            "hideMethod" => $woptifications_options['hideMethod']
         );
-    foreach ($wop_options as $key => $value) {
+    foreach ($woptifications_options as $key => $value) {
         if($value == 1) {
             $toastr_opts[$key] = true;
         }
@@ -27,44 +27,44 @@ function toastr_settings() {
     return $toastr_opts;
 }
 
-function toastr_css() {
+function woptifications_toastr_css() {
     return '';
 }
 
 // Load scripts
-function wop_load_scripts() {
+function woptifications_load_scripts() {
     wp_enqueue_script( 'jquery' );
     wp_enqueue_script('heartbeat');
-    wp_enqueue_script( 'wop-toastr', plugins_url( 'vendor/toastr/toastr.min.js', __FILE__ ), array('jquery'), '', true);
-    wp_enqueue_style( 'wop-toastr', plugins_url( 'vendor/toastr/toastr.min.css', __FILE__ ), '', true);
+    wp_enqueue_script( 'woptifications-toastr', plugins_url( 'vendor/toastr/toastr.min.js', __FILE__ ), array('jquery'), '', true);
+    wp_enqueue_style( 'woptifications-toastr', plugins_url( 'vendor/toastr/toastr.min.css', __FILE__ ), '', true);
     wp_enqueue_script('woptifications', plugins_url( 'js/main.js', __FILE__ ), array('jquery', 'wop-toastr'), '', true);
 
     wp_localize_script( 'woptifications', 'toastr_opts', toastr_settings() );
     wp_add_inline_style( 'wop-toastr', toastr_css() );
 }
-add_action('wp_enqueue_scripts', 'wop_load_scripts');
+add_action('wp_enqueue_scripts', 'woptifications_load_scripts');
 
-function wop_load_admin_scripts() {
+function woptifications_load_admin_scripts() {
     wp_enqueue_style( 'woptifications-backend', plugins_url( 'css/backend.css', __FILE__ ), '', true);
 }
-add_action('admin_enqueue_scripts', 'wop_load_admin_scripts');
+add_action('admin_enqueue_scripts', 'woptifications_load_admin_scripts');
 
 
 // Heartbeat Settings
-function wop_heartbeat_settings( $settings ) {
+function woptifications_heartbeat_settings( $settings ) {
     $settings['interval'] = 15; //Anything between 15-60
     $settings['autostart'] = true; 
     return $settings;
 }
-add_filter('heartbeat_settings', 'wop_heartbeat_settings');
+add_filter('heartbeat_settings', 'woptifications_heartbeat_settings');
 
 
 // Post publish notifications setup
-function new_post_notification() {
-    global $wop_options;
+function woptifications_new_publish_notification() {
+    global $woptifications_options;
 
-    $new_post_notif = $wop_options['alert_hooks']['post'];
-    $types_opts = $wop_options['publish_post_types'];
+    $new_post_notif = $woptifications_options['alert_hooks']['post'];
+    $types_opts = $woptifications_options['publish_post_types'];
 
     if($new_post_notif != 1) {
         return;
@@ -79,11 +79,11 @@ function new_post_notification() {
     }
 
     foreach($active_types as $active_type){
-      add_action( 'publish_'.$active_type, 'wop_notify_published_post' );
+      add_action( 'publish_'.$active_type, 'woptifications_notify_published_post' );
     }
 
-    function wop_notify_published_post( $post_id ) {
-        global $wop_options;
+    function woptifications_notify_published_post( $post_id ) {
+        global $woptifications_options;
 
         $post = get_post( $post_id );
         $url = get_the_permalink($post_id);
@@ -124,10 +124,10 @@ function new_post_notification() {
             }
             $price = $product->get_regular_price();
 
-            $title = $wop_options['product_title'];
+            $title = $woptifications_options['product_title'];
             $title = str_replace($text_vars, $vars, $title);
 
-            $content = $wop_options['product_content'];
+            $content = $woptifications_options['product_content'];
             $content = str_replace($text_vars, $vars, $content);
 
         //If any other post type
@@ -139,10 +139,10 @@ function new_post_notification() {
                 $categories[$category_object->cat_name] = '<a href="'.$link.'">'.$link.'</a> ';
             }
 
-            $title = $wop_options['publish_title'];
+            $title = $woptifications_options['publish_title'];
             $title = str_replace($text_vars, $vars, $title);
 
-            $content = $wop_options['publish_content'];
+            $content = $woptifications_options['publish_content'];
             $content = str_replace($text_vars, $vars, $content);
 
         }
@@ -150,22 +150,22 @@ function new_post_notification() {
         $args = array(
             'title'     =>  $title,
             'content'   =>  $content,
-            'type'      =>  $wop_options['publish_alert_type']
+            'type'      =>  $woptifications_options['publish_alert_type']
         ); 
 
         set_transient( 'woptifications_post'.'_'. mt_rand( 100000, 999999 ), $args, 15 );
     }
 
 } 
-add_action('after_setup_theme', 'new_post_notification', 1 );
+add_action('after_setup_theme', 'woptifications_new_publish_notification', 1 );
 
 
 // New comment notification setup
-function wop_notify_new_comment( $comment_id ) { 
-    global $wop_options;
+function woptifications_notify_new_comment( $comment_id ) { 
+    global $woptifications_options;
 
-    $new_comment_notif = $wop_options['alert_hooks']['comment'];
-    $types_opts = $wop_options['comment_post_types'];
+    $new_comment_notif = $woptifications_options['alert_hooks']['comment'];
+    $types_opts = $woptifications_options['comment_post_types'];
 
     if($new_comment_notif != 1) {
         return;
@@ -217,29 +217,29 @@ function wop_notify_new_comment( $comment_id ) {
         $comment_post_url
     ];
 
-    $title = $wop_options['comment_title'];
+    $title = $woptifications_options['comment_title'];
     $title = str_replace($text_vars, $vars, $title);
 
-    $content = $wop_options['comment_content'];
+    $content = $woptifications_options['comment_content'];
     $content = str_replace($text_vars, $vars, $content);
 
     $args = array(
         'title'     =>  $title,
         'content'   =>  $content,
-        'type'      =>  $wop_options['comment_alert_type']
+        'type'      =>  $woptifications_options['comment_alert_type']
     ); 
     set_transient( 'woptifications_comment'.'_'. mt_rand( 100000, 999999 ), $args, 17 );
 } 
-add_filter('comment_post', 'wop_notify_new_comment');
+add_filter('comment_post', 'woptifications_notify_new_comment');
 
 
 // Send notifications
-function wop_heartbeat_received($response, $data){
+function woptifications_heartbeat_received($response, $data){
     global $wpdb;
     
-    $data['wop_notify'] = array();
+    $data['woptifications'] = array();
 
-    if($data['notify_status'] == 'ready') {
+    if($data['woptifications_status'] == 'ready') {
 
         $sql = $wpdb->prepare( 
             "SELECT * FROM $wpdb->options WHERE option_name LIKE  %s", 
@@ -255,13 +255,13 @@ function wop_heartbeat_received($response, $data){
         foreach ( $notifications as $db_notification ) {
             $id = str_replace( '_transient_', '', $db_notification->option_name );
             if ( false !== ($notification = get_transient($id))) { 
-                $data['wop_notify'][$id] = $notification;      
+                $data['woptifications'][$id] = $notification;      
             }
         }
     }
         
     return $data;
 }
-add_filter('heartbeat_received', 'wop_heartbeat_received', 10, 2); 
-add_filter('heartbeat_nopriv_received', 'wop_heartbeat_received', 10, 2);
+add_filter('heartbeat_received', 'woptifications_heartbeat_received', 10, 2); 
+add_filter('heartbeat_nopriv_received', 'woptifications_heartbeat_received', 10, 2);
 
