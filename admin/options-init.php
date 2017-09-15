@@ -142,6 +142,11 @@
         foreach ($post_types as $post_type) {
             $ret[$post_type] = $post_type;
         }
+
+        if(class_exists( 'WooCommerce' )) {
+            $ret['product'] = 'product';
+        }
+
         return $ret;
     }
 
@@ -200,6 +205,13 @@
                     'error' => __( 'error', 'woptifications'),
                 ),
                 'default'  => 'info',
+            ),
+            array(
+                'id'       => 'cat_match',
+                'type'     => 'switch',
+                'title'    => __('Match categories', 'woptifications'),
+                'subtitle'    => __('Show notification only if viewing a post from same category (will apply only to post publish notifications)', 'woptifications'),
+                'default'  => false,
             ),
             array(
                 'id'       => 'publish_title',
@@ -302,6 +314,13 @@
                     'error' => __( 'error', 'woptifications')
                 ),
                 'default'  => 'info',
+            ),
+            array(
+                'id'       => 'product_cat_match',
+                'type'     => 'switch', 
+                'title'    => __('Match categories', 'woptifications'),
+                'subtitle'    => __('Show notification only if viewing a post from same category', 'woptifications'),
+                'default'  => false,
             ),
             array(
                 'id'       => 'product_title',
@@ -437,7 +456,7 @@
                 'title'     => __('Display duration', 'woptifications'),
                 'subtitle' => __('Set to 0 to keep notification visible until user dismissal', 'woptifications'),
                 "default"   => 5000,
-                "min"       => 500,
+                "min"       => 0,
                 "step"      => 500,
                 "max"       => 300000,
                 'display_value' => 'text'
@@ -448,7 +467,7 @@
                 'title'     => __('Entended display duration after hover', 'woptifications'),
                 'subtitle' => __('Set to 0 to keep notification visible until user dismissal after hover', 'woptifications'),
                 "default"   => 1000,
-                "min"       => 500,
+                "min"       => 0,
                 "step"      => 500,
                 "max"       => 30000,
                 'display_value' => 'text'

@@ -2,6 +2,10 @@
 
 Redux::init( 'woptifications_options' );
 
+function log_the_var($var) {
+    echo '<script type="text/javascript">console.log('.$var.')</script>';
+}
+
 // Toastr settings
 function woptifications_toastr_settings() {
     global $woptifications_options;
@@ -33,6 +37,10 @@ function woptifications_toastr_css() {
 
 // Load scripts
 function woptifications_load_scripts() {
+    global $woptifications_options;
+    $cat_match = $woptifications_options['cat_match'];
+    $product_cat_match = $woptifications_options['product_cat_match'];
+
     wp_enqueue_script( 'jquery' );
     wp_enqueue_script('heartbeat');
     wp_enqueue_script( 'woptifications-toastr', plugins_url( 'vendor/toastr/toastr.min.js', __FILE__ ), array('jquery'), '', true);
@@ -40,7 +48,13 @@ function woptifications_load_scripts() {
     wp_enqueue_script('woptifications', plugins_url( 'js/main.js', __FILE__ ), array('jquery', 'woptifications-toastr'), '', true);
 
     wp_localize_script( 'woptifications', 'woptifications_toastr_opts', woptifications_toastr_settings() );
+    wp_localize_script('woptifications', 'woptifications_vars', array( 
+        "postID" => get_the_ID(),
+        "cat_match" => $cat_match,
+        "product_cat_match" => $product_cat_match
+        ) );
     wp_add_inline_style( 'wop-toastr', woptifications_toastr_css() );
+
 }
 add_action('wp_enqueue_scripts', 'woptifications_load_scripts');
 
@@ -88,10 +102,11 @@ function woptifications_new_publish_notification() {
         $post = get_post( $post_id );
         $url = get_the_permalink($post_id);
         $title = $post->post_title;
-        $author = $post->post_author;
+        $author = get_the_author_meta('display_name', $post->post_author);
         $type = $post->post_type;
-        $thumb = get_the_post_thumbnail_url($post_id,'thumbnail'); 
-        $categories = array();
+        $thumb = get_the_post_thumbnail_url($post_id,'thumbnail');
+        $category_ids = array();
+        $category_links = "";
         $price = "";
 
         $text_vars = [
@@ -101,28 +116,35 @@ function woptifications_new_publish_notification() {
             '%%type%%',
             '%%thumbnail%%',
             '%%categories%%',
-            '%%price%%'
+            '%%price%%',
         ];
-        $vars = [
-            $title,
-            $url,
-            $author,
-            $type,
-            $thumb,
-            $categories,
-            $price
-        ];
+        
 
         //If woocommerce product
-        if ( class_exists( 'WooCommerce' ) && $type == 'product') {
+        if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) )  && $type == 'product') {
 
-            $product = wc_get_product( $post_id );
-            $product_cats = wp_get_post_terms( $post_id, 'product_cat' );
-            foreach($product_cats as $product_cat){
-                $link = get_category_link( $product_cat->term_id );
-                $categories[$product_cat->cat_name] = '<a href="'.$link.'">'.$link.'</a> ';
+            $theproduct = wc_get_product($post_id);
+
+            $category_list = wp_get_post_terms( $post_id, 'product_cat' );
+
+            foreach($category_list as $category){
+                $category_ids[] = $category->term_id;
+                $link = get_category_link( $category->term_id );
+                $cat_name = $category->name;
+                $category_links .= '<a class="btn btn-info btn-xs" href="'.$link.'">'.$cat_name.'</a> ';
             }
-            $price = $product->get_regular_price();
+
+            $price = $theproduct->get_price().get_woocommerce_currency();
+
+            $vars = [
+                $title,
+                $url,
+                $author,
+                $type,
+                $thumb,
+                $category_links,
+                $price
+            ];
 
             $title = $woptifications_options['product_title'];
             $title = str_replace($text_vars, $vars, $title);
@@ -133,11 +155,23 @@ function woptifications_new_publish_notification() {
         //If any other post type
         } else {
 
-            $category_list=get_the_category($post_id);
-            foreach($category_objects as $category_object){
+            $category_list = get_the_category($post_id);
+            foreach($category_list as $category){
+                $category_ids[] = $category->term_id;
                 $link = get_category_link( $category->term_id );
-                $categories[$category_object->cat_name] = '<a href="'.$link.'">'.$link.'</a> ';
+                $cat_name = $category->name;
+                $category_links .= '<a class="btn btn-info btn-xs" href="'.$link.'">'.$cat_name.'</a>';
             }
+
+            $vars = [
+                $title,
+                $url,
+                $author,
+                $type,
+                $thumb,
+                $category_links,
+                $price
+            ];
 
             $title = $woptifications_options['publish_title'];
             $title = str_replace($text_vars, $vars, $title);
@@ -146,11 +180,14 @@ function woptifications_new_publish_notification() {
             $content = str_replace($text_vars, $vars, $content);
 
         }
+        
 
         $args = array(
             'title'     =>  $title,
             'content'   =>  $content,
-            'type'      =>  $woptifications_options['publish_alert_type']
+            'type'      =>  $woptifications_options['publish_alert_type'],
+            'post_type' =>  $type,
+            'post_id'   =>  $post_id,
         ); 
 
         set_transient( 'woptifications_post'.'_'. mt_rand( 100000, 999999 ), $args, 15 );
@@ -226,7 +263,9 @@ function woptifications_notify_new_comment( $comment_id ) {
     $args = array(
         'title'     =>  $title,
         'content'   =>  $content,
-        'type'      =>  $woptifications_options['comment_alert_type']
+        'type'      =>  $woptifications_options['comment_alert_type'],
+        'post_type' =>  'comment',
+        'post_id'   =>  $comment_id, 
     ); 
     set_transient( 'woptifications_comment'.'_'. mt_rand( 100000, 999999 ), $args, 17 );
 } 
@@ -241,6 +280,13 @@ function woptifications_heartbeat_received($response, $data){
 
     if($data['woptifications_status'] == 'ready') {
 
+        $viewed_post_id = intval($data['viewed_post_id']);
+        $cat_match =  intval($data['cat_match']);
+        $product_cat_match =  intval($data['product_cat_match']);
+
+        error_log($cat_match);
+        error_log($product_cat_match);
+
         $sql = $wpdb->prepare( 
             "SELECT * FROM $wpdb->options WHERE option_name LIKE  %s", 
             '_transient_' . 'woptifications' . '_%'
@@ -254,8 +300,64 @@ function woptifications_heartbeat_received($response, $data){
 
         foreach ( $notifications as $db_notification ) {
             $id = str_replace( '_transient_', '', $db_notification->option_name );
-            if ( false !== ($notification = get_transient($id))) { 
-                $data['woptifications'][$id] = $notification;      
+
+            if ( false !== ($notification = get_transient($id))) {
+
+                $post_type = $notification['post_type'];
+                $post_id = $notification['post_id'];
+
+                // if category match selected and notifiaction product categories match viewed product categories
+                if($post_type == 'product' && $product_cat_match == 1) {
+
+                    $viewed_cats_ids = array();
+                    $notification_cats_ids = array();
+
+                    $viewed_cats = wp_get_post_terms( $viewed_post_id, 'product_cat' );
+                    foreach ($viewed_cats as $viewed_cat) {
+                        $viewed_cats_ids[] = $viewed_cat->term_id;
+                    }
+
+                    $notification_cats = wp_get_post_terms( $post_id, 'product_cat' );
+                    foreach ($notification_cats as $notification_cat) {
+                        $notification_cats_ids[] = $notification_cat->term_id;
+                    }
+
+                    $matches = array_intersect($viewed_cats_ids, $notification_cats_ids);
+
+                    if(count($matches) > 0) {
+                        $data['woptifications'][$id] = $notification; 
+                    }
+
+                    continue;
+
+                // if category match selected and notifiaction post categories match viewed post categories
+                } elseif($post_type == 'post' && $cat_match == 1 && is_single($viewed_post_id)) {
+
+                    $viewed_cats_ids = array();
+                    $notification_cats_ids = array();
+
+                    $viewed_cats = get_the_category($viewed_post_id);
+                    foreach ($viewed_cats as $viewed_cat) {
+                        $viewed_cats_ids[] = $viewed_cat->term_id;
+                    }
+
+                    $notification_cats = get_the_category($post_id);
+                    foreach ($notification_cats as $notification_cat) {
+                        $notification_cats_ids[] = $notification_cat->term_id;
+                    }
+
+                    $matches = array_intersect($viewed_cats_ids, $notification_cats_ids);
+
+                    if(count($matches) > 0) {
+                        $data['woptifications'][$id] = $notification; 
+                    }
+
+                    continue;
+
+                } else {
+                    $data['woptifications'][$id] = $notification; 
+                } 
+
             }
         }
     }
