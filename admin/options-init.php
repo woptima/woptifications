@@ -27,7 +27,8 @@
         'page_title' => 'Woptifications',
         'update_notice' => TRUE,
         'menu_type' => 'menu',
-        'menu_title' => 'Woptifications options',
+        'menu_title' => 'Woptifications',
+        'menu_icon'   =>  plugins_url( 'woptifications/img/icon.png'),
         'allow_sub_menu' => TRUE,
         'page_parent' => 'themes.php',
         'page_parent_post_type' => 'your_post_type',
@@ -136,19 +137,65 @@
      *
      */
 
-    function populate_post_types() {
-        $post_types=get_post_types(['public' => true, '_builtin' => true],'names');
+    function woptifications_populate_post_types() {
         $ret = array();
-        foreach ($post_types as $post_type) {
-            $ret[$post_type] = $post_type;
-        }
 
+        $post_types=get_post_types(['public' => true],'names');
+
+        foreach ($post_types as $post_type) {
+            $ret[$post_type] = __($post_type);
+        }
+        
         if(class_exists( 'WooCommerce' )) {
-            $ret['product'] = 'product';
+            $ret['product'] = __('product', 'WooCommerce');
         }
 
         return $ret;
     }
+
+    function woptifications_set_user_meta() {
+        $inner_options = get_option('woptifications_options');
+        $metas = $inner_options['user_custom_fields'];
+        $custom_fields = ['%%username%%','%%nickname%%','%%avatar%%'];
+        if(!empty($metas)) {
+            foreach ($metas as $key => $value) {
+                if($value != "") {
+                    $custom_fields[] = '%%'.$value.'%%';
+                }
+            }
+        }
+        return implode("<br />",$custom_fields);
+    }
+
+    function woptifications_onesignal_status_field() {
+
+        return '<div class="button woptifications-push-test">Notify me!</div>';
+    }
+
+    Redux::setSection( $opt_name, array(
+        'title'  => __( 'Notification type', 'woptifications' ),
+        'subtitle'   => __( 'Select which notification type to use on which devices', 'woptifications' ),
+        'id'     => 'notification_type_select',
+        'desc'   => __( 'Popups will not require the user to accept and may contain html content. Push notifications instead will require a one time acceptance by the user and will only contain text title, body and link on click.', 'woptifications' ),
+        'icon'   => 'el el-rss',
+        'fields' => array(
+            array( 
+                'id'       => 'push_test',
+                'type'     => 'raw',
+                'title'    => __('Test push notification', 'redux-framework-demo'),
+                'content'  => woptifications_onesignal_status_field(),
+            ),
+            array(
+                'id'       => 'notification_type',
+                'type'     => 'checkbox',
+                'title'    => __( 'Select notification type', 'woptifications' ),
+                'options'  => array(
+                        'popup' => __( 'Popup', 'woptifications'),
+                        'push' => __( 'Push', 'woptifications'),
+                    ),
+            ),
+        )
+    ) );
 
     Redux::setSection( $opt_name, array(
         'title'  => __( 'Hooks settings', 'woptifications' ),
@@ -163,19 +210,20 @@
                 'options'  => array(
                         'post' => __( 'post publish', 'woptifications'),
                         'comment' => __( 'new comment', 'woptifications'),
+                        'registration' => __( 'new user', 'woptifications'),
                     ),
             ),
             array(
                 'id'       => 'publish_post_types',
                 'type'     => 'checkbox',
-                'title'    => __( 'Select publish post types', 'woptifications' ),
-                'options'  => populate_post_types(),
+                'title'    => __( 'Select post publish types', 'woptifications' ),
+                'options'  => woptifications_populate_post_types(),
             ),
             array(
                 'id'       => 'comment_post_types',
                 'type'     => 'checkbox',
                 'title'    => __( 'Select new comment post types', 'woptifications' ),
-                'options'  => populate_post_types(),
+                'options'  => woptifications_populate_post_types(),
             )
         )
     ) );
@@ -195,6 +243,12 @@
         'subsection' => true,
         'fields' => array(
             array(
+                'id'    => 'publish_popup_section',
+                'type' => 'section',
+                'title' => __('Popup content', 'woptifications'),
+                'indent' => true,
+            ),
+            array(
                 'id'       => 'publish_alert_type',
                 'type'     => 'select',
                 'title'    => __('Select alert type', 'woptifications'), 
@@ -210,26 +264,23 @@
                 'id'       => 'cat_match',
                 'type'     => 'switch',
                 'title'    => __('Match categories', 'woptifications'),
-                'subtitle'    => __('Show notification only if viewing a post from same category (will apply only to post publish notifications)', 'woptifications'),
+                'subtitle'    => __('Show notification only if viewing a post from same category ', 'woptifications'),
                 'default'  => false,
             ),
             array(
                 'id'       => 'publish_title',
                 'type'     => 'text',
-                'title'    => __('Notification title', 'woptifications'),
+                'title'    => __('Popup title', 'woptifications'),
                 'subtitle' => __('You can use the following variables: <br />
                     %%title%% <br />
                     %%url%% <br />
                     %%author%% <br />
-                    %%type%% <br />
-                    %%thumbnail%% <br />
-                    %%categories%%', 'woptifications'),
-
+                    %%type%%', 'woptifications'),
             ),
             array(
                 'id'       => 'publish_content',
                 'type'     => 'editor',
-                'title'    => __('Notification content', 'woptifications'), 
+                'title'    => __('Popup content', 'woptifications'), 
                 'subtitle' => __('You can use the following variables: <br />
                     %%title%% <br />
                     %%url%% <br />
@@ -242,6 +293,59 @@
                     'textarea_rows'    => 10
                 ),
             ),
+            array(
+                'id'     => 'publish_popup_section_end',
+                'type'   => 'section',
+                'indent' => false,
+            ),
+            array(
+                'id'    => 'publish_push_section',
+                'type' => 'section',
+                'title' => __('Push notification content', 'woptifications'),
+                'indent' => true,
+            ),
+            array(
+                'id'       => 'publish_push_title',
+                'type'     => 'text',
+                'title'    => __('Push title', 'woptifications'),
+                'subtitle' => __('You can use the following variables: <br />
+                    %%title%% <br />
+                    %%author%% <br />
+                    %%type%%', 'woptifications'),
+            ),
+            array(
+                'id'       => 'publish_push_content',
+                'type'     => 'textarea',
+                'title'    => __('Push content', 'woptifications'),
+                'subtitle' => __('You can use the following variables: <br />
+                    %%title%% <br />
+                    %%author%% <br />
+                    %%type%%', 'woptifications'),
+            ),
+            array(
+                'id'       => 'publish_use_thumb',
+                'type'     => 'switch', 
+                'title'    => __('Use thumbnail as notification image', 'woptifications'),
+                'subtitle'    => __('If set to off default icon set in notification settings>push notification will be used', 'woptifications'),
+                'default'  => false,
+            ),
+            array(
+                'id'       => 'publish_custom_link_enable',
+                'type'     => 'switch',
+                'title'    => __('Use custom link', 'woptifications'),
+                'subtitle'    => __('If set to off post link will be used', 'woptifications'),
+                'default'  => false,
+            ),
+            array(
+                'id'       => 'publish_custom_link',
+                'type'     => 'text',
+                'title'    => __('Link url', 'woptifications'),
+            ),
+            array(
+                'id'     => 'publish_push_section_end',
+                'type'   => 'section',
+                'indent' => false,
+            ),
         )
     ) );
 
@@ -251,6 +355,12 @@
         'icon'   => 'el el-comment',
         'subsection' => true,
         'fields' => array(
+            array(
+                'id'    => 'comment_popup_section',
+                'type' => 'section',
+                'title' => __('Popup content', 'woptifications'),
+                'indent' => true,
+            ),
             array(
                 'id'       => 'comment_alert_type',
                 'type'     => 'select',
@@ -294,6 +404,168 @@
                     'textarea_rows'    => 10
                 ),
             ),
+             array(
+                'id'     => 'comment_popup_section_end',
+                'type'   => 'section',
+                'indent' => false,
+            ),
+            array(
+                'id'    => 'comment_push_section',
+                'type' => 'section',
+                'title' => __('Push notification content', 'woptifications'),
+                'indent' => true,
+            ),
+            array(
+                'id'       => 'comment_push_title',
+                'type'     => 'text',
+                'title'    => __('Push title', 'woptifications'),
+                'subtitle' => __('You can use the following variables: <br />
+                    %%title%% <br />
+                    %%author%% <br />
+                    %%type%%', 'woptifications'),
+            ),
+            array(
+                'id'       => 'comment_push_content',
+                'type'     => 'textarea',
+                'title'    => __('Push content', 'woptifications'),
+                'subtitle' => __('You can use the following variables: <br />
+                    %%title%% <br />
+                    %%author%% <br />
+                    %%type%%', 'woptifications'),
+            ),
+            array(
+                'id'       => 'comment_use_thumb',
+                'type'     => 'switch', 
+                'title'    => __('Use thumbnail as notification image', 'woptifications'),
+                'subtitle'    => __('If set to off default icon set in notification settings>push notification will be used', 'woptifications'),
+                'default'  => false,
+            ),
+            array(
+                'id'       => 'comment_custom_link_enable',
+                'type'     => 'switch',
+                'title'    => __('Use custom link', 'woptifications'),
+                'subtitle'    => __('If set to off comment post link will be used', 'woptifications'),
+                'default'  => false,
+            ),
+            array(
+                'id'       => 'comment_custom_link',
+                'type'     => 'text',
+                'title'    => __('Link url', 'woptifications'),
+            ),
+            array(
+                'id'     => 'comment_push_section_end',
+                'type'   => 'section',
+                'indent' => false,
+            ),
+        )
+    ) );
+
+    Redux::setSection( $opt_name, array(
+        'title'  => __( 'New user content', 'woptifications' ),
+        'id'     => 'registration_content_settings',
+        'icon'   => 'el el-user',
+        'subsection' => true,
+        'fields' => array(
+            array(
+                'id'       => 'registration_alert_type',
+                'type'     => 'select',
+                'title'    => __('Select popup alert type', 'woptifications'), 
+                'options'  => array(
+                    'info' => __( 'info', 'woptifications'),
+                    'warning' => __( 'warning', 'woptifications'),
+                    'success' => __( 'success', 'woptifications'),
+                    'error' => __( 'error', 'woptifications')
+                ),
+                'default'  => 'info',
+            ),
+            array(
+                'id'       => 'registration_default_message',
+                'type'     => 'switch',
+                'title'    => __('Use predefined notification message', 'woptifications'),
+                'subtitle'    => __('New user joined! %%username%% has just registered', 'woptifications'),
+                'default'  => true,
+            ),
+            array(
+                'id'    => 'info_registration',
+                'type' => 'info',
+                'style' => 'critical',
+                'title' => __('<i class="el el-warning-sign"></i> Warning, since specific user fields may not be required upon user registration, be careful when choosing which fields to display in the message as they may result empty.', 'woptifications'),
+                'required' => array('registration_default_message','equals','0'),
+            ),
+            array(
+                'id'    => 'registration_popup_section',
+                'type' => 'section',
+                'title' => __('Popup content', 'woptifications'),
+                'indent' => true,
+                'required' => array('registration_default_message','equals','0'),
+            ),
+            array(
+                'id'        =>'user_custom_fields',
+                'type'      => 'multi_text',
+                'title'     => __('Custom user meta', 'woptifications'),
+                'subtitle'  => __('Insert custom meta fields to use in the title and content', 'woptifications'),
+                'desc'      => __('Enter the meta fields exact names (no spaces, case sensitive), save and reload to view them.', 'woptifications'),
+                'required' => array('registration_default_message','equals','0'),
+            ),
+            array(
+                'id'       => 'registration_title',
+                'type'     => 'text',
+                'title'    => __('Notification title', 'woptifications'),
+                'subtitle' => woptifications_set_user_meta(),
+                'required' => array('registration_default_message','equals','0'),
+
+            ),
+            array(
+                'id'       => 'registration_content',
+                'type'     => 'editor',
+                'title'    => __('Notification content', 'woptifications'), 
+                'subtitle' => woptifications_set_user_meta(),
+                'required' => array('registration_default_message','equals','0'),
+                'args'     => array(
+                    'teeny'            => false,
+                    'textarea_rows'    => 10
+                ),
+            ),
+            array(
+                'id'     => 'registration_popup_section_end',
+                'type'   => 'section',
+                'indent' => false,
+                'required' => array('registration_default_message','equals','0'),
+            ),
+            array(
+                'id'    => 'registration_push_section',
+                'type' => 'section',
+                'title' => __('Push notification content', 'woptifications'),
+                'indent' => true,
+                'required' => array('registration_default_message','equals','0'),
+            ),
+            array(
+                'id'       => 'registration_push_title',
+                'type'     => 'text',
+                'title'    => __('Push title', 'woptifications'),
+                'subtitle' => woptifications_set_user_meta(),
+                'required' => array('registration_default_message','equals','0'),
+            ),
+            array(
+                'id'       => 'registration_push_content',
+                'type'     => 'textarea',
+                'title'    => __('Push content', 'woptifications'),
+                'subtitle' => woptifications_set_user_meta(),
+                'required' => array('registration_default_message','equals','0'),
+            ),
+            array(
+                'id'       => 'registration_use_thumb',
+                'type'     => 'switch', 
+                'title'    => __('Use avatar as notification image', 'woptifications'),
+                'subtitle'    => __('If set to off default icon set in notification settings>push notification will be used. Do not use if avatar is not a required field in registration form.', 'woptifications'),
+                'default'  => false,
+            ),
+            array(
+                'id'     => 'registration_push_section_end',
+                'type'   => 'section',
+                'indent' => false,
+                'required' => array('registration_default_message','equals','0'),
+            ),
         )
     ) );
 
@@ -303,6 +575,12 @@
         'icon'   => 'el el-gift',
         'subsection' => true,
         'fields' => array(
+            array(
+                'id'    => 'publish_popup_section',
+                'type' => 'section',
+                'title' => __('Popup notification content', 'woptifications'),
+                'indent' => true,
+            ),
             array(
                 'id'       => 'product_alert_type',
                 'type'     => 'select',
@@ -319,7 +597,7 @@
                 'id'       => 'product_cat_match',
                 'type'     => 'switch', 
                 'title'    => __('Match categories', 'woptifications'),
-                'subtitle'    => __('Show notification only if viewing a post from same category', 'woptifications'),
+                'subtitle'    => __('Show notification only if viewing a post from same category ', 'woptifications'),
                 'default'  => false,
             ),
             array(
@@ -353,22 +631,89 @@
                     'textarea_rows'    => 10
                 ),
             ),
+            array(
+                'id'     => 'product_popup_section_end',
+                'type'   => 'section',
+                'indent' => false,
+            ),
+            array(
+                'id'    => 'product_push_section',
+                'type' => 'section',
+                'title' => __('Push notification content', 'woptifications'),
+                'indent' => true,
+            ),
+            array(
+                'id'       => 'product_push_title',
+                'type'     => 'text',
+                'title'    => __('Push title', 'woptifications'),
+                'subtitle' => __('You can use the following variables: <br />
+                    %%title%% <br />
+                    %%author%% <br />
+                    %%type%% <br />
+                    %%price%%', 'woptifications'),
+            ),
+            array(
+                'id'       => 'product_push_content',
+                'type'     => 'textarea',
+                'title'    => __('Push content', 'woptifications'),
+                'subtitle' => __('You can use the following variables: <br />
+                    %%title%% <br />
+                    %%author%% <br />
+                    %%type%% <br />
+                    %%price%%', 'woptifications'),
+                'args'    => array(
+                    'teeny'            => false,
+                    'textarea_rows'    => 10
+                ),
+            ),
+            array(
+                'id'       => 'product_use_thumb',
+                'type'     => 'switch', 
+                'title'    => __('Use thumbnail as notification image', 'woptifications'),
+                'subtitle'    => __('If set to off default icon set in notification settings>push notification will be used', 'woptifications'),
+                'default'  => false,
+            ),
+            array(
+                'id'       => 'product_custom_link_enable',
+                'type'     => 'switch',
+                'title'    => __('Use custom link', 'woptifications'),
+                'subtitle'    => __('If set to off post link will be used', 'woptifications'),
+                'default'  => false,
+            ),
+            array(
+                'id'       => 'product_custom_link',
+                'type'     => 'text',
+                'title'    => __('Link url', 'woptifications'),
+            ),
+            array(
+                'id'     => 'product_push_section_end',
+                'type'   => 'section',
+                'indent' => false,
+            ),
         )
     ) );
 
-
     Redux::setSection( $opt_name, array(
         'title'  => __( 'Notification settings', 'woptifications' ),
+        'id'     => 'notification_settings',
+        'desc'   => __( 'Notification output contents', 'woptifications' ),
+        'icon'   => 'el el-comment',
+        )
+    );
+
+    Redux::setSection( $opt_name, array(
+        'title'  => __( 'Popup', 'woptifications' ),
         'id'     => 'toastr_settings',
         'desc'   => __( 'Configure the notifications', 'woptifications' ),
         'icon'   => 'el el-adjust-alt',
+        'subsection' => true,
         'fields' => array(
             array(
                 'id'       => 'options',
                 'type'     => 'checkbox',
                 'title'    => __( 'Notification options', 'woptifications' ),
                 'options'  => array(
-                        'closeButton' => __( 'close button', 'woptifications'),
+                        'closea' => __( 'close a', 'woptifications'),
                         'progressBar' => __( 'progress bar', 'woptifications'),
                         'preventDuplicates' => __( 'prevent duplicates', 'woptifications'),
                         'newestOnTop' => __( 'newest ontop', 'woptifications'),
@@ -464,7 +809,7 @@
             array(
                 'id'        => 'extendedTimeOut',
                 'type'      => 'slider',
-                'title'     => __('Entended display duration after hover', 'woptifications'),
+                'title'     => __('Extended display duration after hover', 'woptifications'),
                 'subtitle' => __('Set to 0 to keep notification visible until user dismissal after hover', 'woptifications'),
                 "default"   => 1000,
                 "min"       => 0,
@@ -475,6 +820,22 @@
         )
     ) );
 
+    Redux::setSection( $opt_name, array(
+        'title'  => __( 'Push notification', 'woptifications' ),
+        'id'     => 'push_settings',
+        'desc'   => __( 'Configure the notifications', 'woptifications' ),
+        'icon'   => 'el el-picture',
+        'subsection' => true,
+        'fields' => array(
+            array(
+                'id'       => 'push_icon',
+                'type'     => 'media', 
+                'url'      => true,
+                'title'    => __('Notification icon', 'woptifications'),
+                'subtitle' => __('You website logo', 'woptifications'),
+            ),
+        )
+    ) );
 
 
     /*
