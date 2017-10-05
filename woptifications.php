@@ -2,7 +2,7 @@
 /*
    Plugin Name: Woptifications
    Plugin URI: http://wordpress.org/plugins/woptifications/
-   Version: 1.0
+   Version: 2.1
    Author: woptima
    Description: Near real-time notifications on font-end. Applicable to events such as post publish or commenting. Supports custom post types and woocommerce products.
    Text Domain: woptifications

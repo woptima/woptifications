@@ -1,35 +1,26 @@
 <?php
 
-// Post publish notifications setup
-function woptifications_new_publish_notification() {
-    global $woptifications_options;
 
-    $new_post_notif = $woptifications_options['alert_hooks']['post'];
-    $types_opts = $woptifications_options['publish_post_types'];
+/**
+* New publish hook
+* Setting content separately for Woo Products and other types of posts
+*/
+class woptificationsNewPublish
+{
+    
+    function __construct()
+    {
+        global $woptifications_options;
+        $this->woptifications_options = $this->woptifications_options;
 
-    if($new_post_notif != 1) {
-        return;
-    }
-
-    $active_types = array();
-
-    foreach ($types_opts as $key => $value) {
-        if($value == 1) {
-            $active_types[] = $key;
-        }
-    }
-
-    foreach($active_types as $active_type){
-      add_action( 'publish_'.$active_type, 'woptifications_notify_published_post' );
+        add_action('after_setup_theme', array($this, 'woptifications_new_publish_notification'), 1 );
     }
 
     function woptifications_notify_published_post( $post_id ) {
-        global $woptifications_options;
+        
 
-        $notification_type_push = $woptifications_options['notification_type']['push'];
-        $notification_type_popup = $woptifications_options['notification_type']['popup'];
-
-        error_log('push enable = '.$notification_type_push.' popup enable = '.$notification_type_popup);
+        $notification_type_push = $this->woptifications_options['notification_type']['push'];
+        $notification_type_popup = $this->woptifications_options['notification_type']['popup'];
 
         $post = get_post( $post_id );
         $url = get_the_permalink($post_id);
@@ -42,13 +33,13 @@ function woptifications_new_publish_notification() {
         $price = "";
 
         $text_vars = [
-            '%%title%%',
-            '%%url%%',
-            '%%author%%',
-            '%%type%%',
-            '%%thumbnail%%',
-            '%%categories%%',
-            '%%price%%',
+            '%%title%%'     => $title,
+            '%%url%%'       => $url,
+            '%%author%%'    => $author,
+            '%%type%%'      => $type,
+            '%%thumbnail%%' => $thumbnail,
+            '%%categories%%'=> $categories,
+            '%%price%%'     => $price
         ];
         
 
@@ -59,52 +50,36 @@ function woptifications_new_publish_notification() {
 
             $category_list = wp_get_post_terms( $post_id, 'product_cat' );
 
-            foreach($category_list as $category){
-                $category_ids[] = $category->term_id;
-                $link = get_category_link( $category->term_id );
-                $cat_name = $category->name;
-                $category_links .= '<a class="btn btn-info btn-xs" href="'.$link.'">'.$cat_name.'</a> ';
+            if(is_array($category_list) && !empty($category_list)) {
+
+                foreach($category_list as $category) {
+                    $category_ids[] = $category->term_id;
+                    $link = get_category_link( $category->term_id );
+                    $cat_name = $category->name;
+                    $text_vars['%%categories%%'] .= '<a class="btn btn-info btn-xs" href="'.$link.'">'.$cat_name.'</a> ';
+                }
+
             }
 
-            $price = $theproduct->get_price().get_woocommerce_currency();
+            $text_vars['%%price%%'] = $theproduct->get_price().get_woocommerce_currency();
 
-            $vars = [
-                $title,
-                $url,
-                $author,
-                $type,
-                $thumb,
-                $category_links,
-                $price
-            ];
+            $popup_title = $this->woptifications_options['product_title'];
+            $popup_title = str_replace(array_keys($text_vars), $text_vars, $popup_title);
 
-            $popup_title = $woptifications_options['product_title'];
-            $popup_title = str_replace($text_vars, $vars, $popup_title);
+            $popup_content = $this->woptifications_options['product_content'];
+            $popup_content = str_replace(array_keys($text_vars), $text_vars, $popup_content);
 
-            $popup_content = $woptifications_options['product_content'];
-            $popup_content = str_replace($text_vars, $vars, $popup_content);
-
-            if($woptifications_options['product_custom_link_enable'] == 1) {
-                $url = $woptifications_options['product_custom_link'];
+            if($this->woptifications_options['product_custom_link_enable'] == 1) {
+                $text_vars['%%url%%'] = $this->woptifications_options['product_custom_link'];
             }
 
-            $vars = [
-                $title,
-                $url,
-                $author,
-                $type,
-                $thumb,
-                $category_links,
-                $price
-            ];
+            $push_title = $this->woptifications_options['product_push_title'];
+            $push_title = str_replace(array_keys($text_vars), $text_vars, $push_title);
 
-            $push_title = $woptifications_options['product_push_title'];
-            $push_title = str_replace($text_vars, $vars, $push_title);
+            $push_content = $this->woptifications_options['product_push_content'];
+            $push_content = str_replace(array_keys($text_vars), $text_vars, $push_content);
 
-            $push_content = $woptifications_options['product_push_content'];
-            $push_content = str_replace($text_vars, $vars, $push_content);
-
-            $thumb = $woptifications_options['product_use_thumb'] == 1 ? $thumb : $woptifications_options['push_icon']['thumbnail'];
+            $thumb = $this->woptifications_options['product_use_thumb'] == 1 ? $thumb : $this->woptifications_options['push_icon']['thumbnail'];
 
         //If any other post type
         } else {
@@ -114,46 +89,26 @@ function woptifications_new_publish_notification() {
                 $category_ids[] = $category->term_id;
                 $link = get_category_link( $category->term_id );
                 $cat_name = $category->name;
-                $category_links .= '<a class="btn btn-info btn-xs" href="'.$link.'">'.$cat_name.'</a>';
+                $text_vars['%%categories%%'] .= '<a class="btn btn-info btn-xs" href="'.$link.'">'.$cat_name.'</a>';
             }
 
-            $vars = [
-                $title,
-                $url,
-                $author,
-                $type,
-                $thumb,
-                $category_links,
-                $price
-            ];
+            $popup_title = $this->woptifications_options['publish_title'];
+            $popup_title =  str_replace(array_keys($text_vars), $text_vars, $popup_title);
 
-            $popup_title = $woptifications_options['publish_title'];
-            $popup_title = str_replace($text_vars, $vars, $popup_title);
+            $popup_content = $this->woptifications_options['publish_content'];
+            $popup_content =  str_replace(array_keys($text_vars), $text_vars, $popup_content);
 
-            $popup_content = $woptifications_options['publish_content'];
-            $popup_content = str_replace($text_vars, $vars, $popup_content);
-
-            if($woptifications_options['publish_custom_link_enable'] == 1) {
-                $url = $woptifications_options['publish_custom_link'];
+            if($this->woptifications_options['publish_custom_link_enable'] == 1) {
+                $text_vars['%%url%%'] = $this->woptifications_options['publish_custom_link'];
             }
 
-            $vars = [
-                $title,
-                $url,
-                $author,
-                $type,
-                $thumb,
-                $category_links,
-                $price
-            ];
+            $push_title = $this->woptifications_options['publish_push_title'];
+            $push_title =  str_replace(array_keys($text_vars), $text_vars, $push_title);
 
-            $push_title = $woptifications_options['publish_push_title'];
-            $push_title = str_replace($text_vars, $vars, $push_title);
+            $push_content = $this->woptifications_options['publish_push_content'];
+            $push_content =  str_replace(array_keys($text_vars), $text_vars, $push_content);
 
-            $push_content = $woptifications_options['publish_push_content'];
-            $push_content = str_replace($text_vars, $vars, $push_content);
-
-            $thumb = $woptifications_options['publish_use_thumb'] == 1 ? $thumb : $woptifications_options['push_icon']['thumbnail'];
+            $thumb = $this->woptifications_options['publish_use_thumb'] == 1 ? $thumb : $this->woptifications_options['push_icon']['thumbnail'];
 
         }
 
@@ -161,7 +116,7 @@ function woptifications_new_publish_notification() {
         $args = array(
             'title'     =>  $popup_title,
             'content'   =>  $popup_content,
-            'type'      =>  $woptifications_options['publish_alert_type'],
+            'type'      =>  $this->woptifications_options['publish_alert_type'],
             'post_type' =>  $type,
             'post_id'   =>  $post_id,
         ); 
@@ -183,7 +138,31 @@ function woptifications_new_publish_notification() {
         }
     }
 
-} 
-add_action('after_setup_theme', 'woptifications_new_publish_notification', 1 );
+    // Post publish notifications setup
+    function woptifications_new_publish_notification() {
 
-?>
+        $new_post_notif = $this->woptifications_options['alert_hooks']['post'];
+        $types_opts = $this->woptifications_options['publish_post_types'];
+
+        if($new_post_notif != 1) {
+            return;
+        }
+
+        $active_types = array();
+
+        foreach ($types_opts as $key => $value) {
+            if($value == 1) {
+                $active_types[] = $key;
+            }
+        }
+
+        foreach($active_types as $active_type){
+          add_action( 'publish_'.$active_type, 'woptifications_notify_published_post' );
+        }
+
+    } 
+    
+}
+
+$woptificationsNewPublish = new woptificationsNewPublish();
+
